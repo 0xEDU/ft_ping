@@ -8,7 +8,6 @@ int main(int argc, char *argv[]) {
         print_help();
     }
 
-    // Parsing command line arguments using getopt
     while ((opt = getopt(argc, argv, "v?")) != -1) {
         switch (opt) {
             case 'v':
@@ -21,10 +20,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Handle -v flag
     if (flag_v) {
         printf("Flag -v is set.\n");
-        // Add your -v flag handling code here
+    }
+
+    char **hostnames = &argv[optind];
+    if (hostnames[0] == NULL) {
+        print_help();
+    }
+
+    for (int i = 0; hostnames[i] != NULL; i++) {
+        printf("Host: %s\n", hostnames[i]);
     }
 
     return 0;
