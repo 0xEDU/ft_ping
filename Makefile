@@ -2,7 +2,8 @@ NAME = ft_ping
 PATH_SRCS = ./src/
 PATH_OBJS = ./obj/
 
-SRCS = main.c
+SRCS = main.c \
+	   print_help.c
 
 OBJS = ${SRCS:%.c=$(PATH_OBJS)%.o}
 
