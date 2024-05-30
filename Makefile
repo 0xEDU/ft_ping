@@ -3,7 +3,8 @@ PATH_SRCS = ./src/
 PATH_OBJS = ./obj/
 
 SRCS = main.c \
-	   print_help.c
+	   print_help.c \
+	   calculate_checksum.c
 
 OBJS = ${SRCS:%.c=$(PATH_OBJS)%.o}
 
