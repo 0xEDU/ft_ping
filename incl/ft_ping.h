@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <strings.h>
+#include <string.h>
 #include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -13,17 +14,23 @@
 #include <arpa/inet.h>
 
 #define ICMP_ECHO_REQUEST 8
+#define ICMP_ECHO_REPLY 0
 #define ICMP_ECHO_CODE 0
+#define PACKET_SIZE 64
 
 typedef struct s_icmp_header {
-	uint8_t type;
-	uint8_t code;
-	uint16_t checksum;
-	uint16_t id;
-	uint16_t sequence;
+	u_int8_t type;
+	u_int8_t code;
+	u_int16_t checksum;
+	u_int16_t id;
+	u_int16_t sequence;
+	
+	double sending_ts;
+	char magic[11];
 } icmp_header_t;
 
 void print_help();
-unsigned short calculate_checksum(void *b, int len);
+// unsigned short calculate_checksum(void *b, int len);
+uint16_t calculate_checksum(unsigned char* buffer, int bytes);
 
 #endif // !FT_PING_H
