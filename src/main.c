@@ -1,4 +1,5 @@
 #include "ft_ping.h"
+#include <string.h>
 
 double get_timestamp()
 {
@@ -7,14 +8,38 @@ double get_timestamp()
     return tv.tv_sec + ((double)tv.tv_usec) / 1000000;
 }
 
-void ping(char *hostname) {
-    int ping_fd = -1;
+void throw_generic_error() {
+    perror("ping");
+    exit(EXIT_FAILURE);
+}
 
-    (void)hostname;
-    if ((ping_fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) < 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-    }
+void ping(const char *hostname) {
+    int ping_fd;
+    uint8_t packet[64];
+
+    // Open socket
+    if ((ping_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0)
+        throw_generic_error();
+
+    // Set target hostname. inet_pton convert IPs to address struct
+    struct sockaddr_in destination_address;
+    bzero(&destination_address, sizeof(destination_address));
+    destination_address.sin_family = AF_INET;
+    if (inet_pton(AF_INET, hostname, &destination_address.sin_addr) <= 0)
+        throw_generic_error();
+
+    // Create ICMP header
+    icmp_header_t icmp_header;
+    bzero(&icmp_header, sizeof(icmp_header));
+    icmp_header.type = ICMP_ECHO_REQUEST;
+    icmp_header.code = ICMP_ECHO_CODE;
+    icmp_header.id = getpid();
+    icmp_header.sequence = 42;
+
+    // Fill packet
+    memcpy(packet, &icmp_header, sizeof(icmp_header));
+    icmp_header.checksum = calculate_checksum(packet, sizeof(icmp_header));
+    memcpy(packet, &icmp_header, sizeof(icmp_header));
 }
 
 int main(int argc, char *argv[]) {
