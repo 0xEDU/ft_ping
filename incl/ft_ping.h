@@ -29,6 +29,20 @@ typedef struct s_icmp_header {
 	char magic[11];
 } icmp_header_t;
 
+struct iphdr {
+    unsigned int ihl:4;
+    unsigned int version:4;
+    u_int8_t tos;
+    u_int16_t tot_len;
+    u_int16_t id;
+    u_int16_t frag_off;
+    u_int8_t ttl;
+    u_int8_t protocol;
+    u_int16_t check;
+    u_int32_t saddr;
+    u_int32_t daddr;
+};
+
 void print_help();
 // unsigned short calculate_checksum(void *b, int len);
 uint16_t calculate_checksum(unsigned char* buffer, int bytes);

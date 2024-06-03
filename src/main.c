@@ -31,8 +31,8 @@ void ping(const char *hostname) {
     bzero(&icmp_header, sizeof(icmp_header));
     icmp_header.type = ICMP_ECHO_REQUEST;
     icmp_header.code = ICMP_ECHO_CODE;
-    icmp_header.id = htons(getpid());
-    icmp_header.sequence = htons(42);
+    icmp_header.id = getpid();
+    icmp_header.sequence = 42;
 
     // Fill magic
     strncpy(icmp_header.magic, "1234567890", 11);
@@ -41,9 +41,7 @@ void ping(const char *hostname) {
 
     // Fill packet
     // memcpy(packet, &icmp_header, sizeof(icmp_header));
-    icmp_header.checksum = htons(
-        calculate_checksum((unsigned char *)&icmp_header, sizeof(icmp_header))
-    );
+    icmp_header.checksum = calculate_checksum((unsigned char *)&icmp_header, sizeof(icmp_header));
     // memcpy(packet, &icmp_header, sizeof(icmp_header));
 
     // Send ICMP packet
@@ -54,17 +52,17 @@ void ping(const char *hostname) {
 
     // Receive ICMP response
     struct sockaddr_in peer_address;
-    socklen_t from_len = sizeof(peer_address);
+    socklen_t peer_address_len = sizeof(peer_address);
     uint8_t recv_buffer[1500];
 
-    if (recvfrom(ping_fd, recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr *)&peer_address, &from_len) < 0) {
+    if (recvfrom(ping_fd, recv_buffer, sizeof(recv_buffer), 0, (struct sockaddr *)&peer_address, &peer_address_len) < 0) {
         close(ping_fd);
         throw_generic_error();
     }
 
     // Process ICMP response
     printf("Received packet from %s\n", inet_ntoa(peer_address.sin_addr));
-    icmp_header_t *reply_header = (icmp_header_t *) (recv_buffer + sizeof(icmp_header_t));
+    icmp_header_t *reply_header = (icmp_header_t *) (recv_buffer);
 
     if (reply_header->type == ICMP_ECHO_REPLY && reply_header->id == getpid()) {
         printf("Received echo reply from %s: icmp_seq=%d\n", hostname, reply_header->sequence);
