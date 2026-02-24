@@ -1,4 +1,5 @@
 #include "ft_ping.h"
+#include <netdb.h>
 
 double get_timestamp() {
   struct timeval tv;
@@ -19,7 +20,7 @@ int create_socket() {
   return socket_fd;
 }
 
-char *resolve_hostname(const char *hostname) {
+t_host *resolve_hostname(const char *hostname) {
   struct addrinfo hints, *res;
   bzero(&hints, sizeof(hints));
   hints.ai_family = AF_INET;
@@ -33,16 +34,13 @@ char *resolve_hostname(const char *hostname) {
   }
 
   struct sockaddr_in *addr = (struct sockaddr_in *)res->ai_addr;
-  char *ip_str = malloc(INET_ADDRSTRLEN);
-  if (ip_str == NULL) {
-    perror("malloc");
-    freeaddrinfo(res);
-    exit(EXIT_FAILURE);
-  }
 
-  inet_ntop(AF_INET, &(addr->sin_addr), ip_str, INET_ADDRSTRLEN);
+  t_host *host = malloc(sizeof(t_host));
+  memcpy(&host->addr, addr, sizeof(struct sockaddr_in));
+  inet_ntop(AF_INET, &(addr->sin_addr), host->ip_str, INET_ADDRSTRLEN);
+
   freeaddrinfo(res);
-  return ip_str;
+  return host;
 }
 
 int main(int argc, char *argv[]) {
@@ -78,11 +76,11 @@ int main(int argc, char *argv[]) {
 
   int socket_fd = create_socket();
 
-  // TODO: Resolve hostnames in loop
   for (int i = 0; hostnames[i] != NULL; i++) {
-    char *ip_str = resolve_hostname(hostnames[i]);
-    printf("Resolved IP address: %s\n", ip_str);
-    free(ip_str);
+    t_host *host = resolve_hostname(hostnames[i]);
+
+    printf("Resolved IP address: %s\n", host->ip_str);
+    free(host);
   }
 
   close(socket_fd);
