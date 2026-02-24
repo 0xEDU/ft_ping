@@ -83,6 +83,7 @@ Reference implementation:
 
 ### Error Handling
 - Program must **never crash**
+- Malloc error handling is not important
 - Handle:
   - Invalid input
   - Network errors
